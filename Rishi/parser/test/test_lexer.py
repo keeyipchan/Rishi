@@ -1,7 +1,7 @@
 __author__ = 'Robur'
 
 import unittest
-from rishi.parser.JSLexer import TOK, Lexer
+from Rishi.parser.JSLexer import TOK, Lexer
 
 class LexerTestCase(unittest.TestCase):
     def testRawComment(self):

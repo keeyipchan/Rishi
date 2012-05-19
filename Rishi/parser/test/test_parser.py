@@ -1,6 +1,6 @@
 import unittest
-from rishi.parser import AST
-from rishi.parser.JSParser import Parser
+from Rishi.parser import AST
+from Rishi.parser.JSParser import Parser
 
 __author__ = 'Robur'
 

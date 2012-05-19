@@ -1,5 +1,5 @@
-from rishi.parser import AST, JSLexer
-from rishi.parser.JSLexer import TOK, Lexer
+from Rishi.parser import AST, JSLexer
+from Rishi.parser.JSLexer import TOK, Lexer
 
 __author__ = 'Robur'
 
