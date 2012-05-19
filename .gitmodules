@@ -1,3 +1,0 @@
-[submodule "tools/parser"]
-	path = tools/parser
-	url = git://github.com/Karabur/javascript-python-parser.git
