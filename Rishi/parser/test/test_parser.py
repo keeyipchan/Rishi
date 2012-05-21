@@ -435,8 +435,8 @@ class ParserTestCase(unittest.TestCase):
         parser.buildAST()
 
         self.assertEqual(len(parser.ASTRoot.statements),2)
-        self.assertEqual(type(parser.ASTRoot.statements[0]),AST.EmptyStatement)
-        self.assertEqual(type(parser.ASTRoot.statements[1]),AST.EmptyStatement)
+        self.assertEqual(type(parser.ASTRoot.statements[0]), AST.EmptyStatement)
+        self.assertEqual(type(parser.ASTRoot.statements[1]), AST.EmptyStatement)
 
     def test18parseIfStatement(self):
         parser = Parser()
@@ -607,7 +607,7 @@ class ParserTestCase(unittest.TestCase):
 
         self.assertEqual(type(node), AST.WithStatement)
         self.assertEqual(node.expr.name,'dd')
-        self.assertEqual(type(node.statement),AST.Block)
+        self.assertEqual(type(node.statement), AST.Block)
 
     def test24SwitchStatement(self):
         parser = Parser()

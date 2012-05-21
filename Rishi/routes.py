@@ -1,11 +1,11 @@
 from bottle import route
+from Rishi.mind import mind
 __author__ = 'Robur'
 
-@route('/')
+@route('/sourceList')
 def hello():
-    return 'Hello World'
+    return mind.getSourceList()
 
-def init ():
-    #dummy to prevent 'unused imports' detection... todo: avoid this somehow?
-    pass
 
+def init():
+    return None

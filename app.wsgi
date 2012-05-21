@@ -11,7 +11,6 @@ os.chdir(os.path.dirname(__file__))
 
 import bottle
 bottle.debug(True)
-
 from Rishi.init import start
 
 start()
