@@ -567,7 +567,7 @@ class Parser:
     def parseContinueStatement(self):
         self.expect(TOK.RESERVED, 'continue')
         label = None
-        if self.LTAhead() or self.match(TOK.PUNCTUATOR, ';') or self.match(TOK.EOF):
+        if self.LTAhead() or self.match(TOK.PUNCTUATOR, ';') or self.match(TOK.EOF) or self.match(TOK.PUNCTUATOR, '}'):
             return AST.ContinueStatement(label)
         label = AST.Identifier(self.expect(TOK.ID)[1])
         self.expectSemicolon()
@@ -576,7 +576,7 @@ class Parser:
     def parseBreakStatement(self):
         self.expect(TOK.RESERVED, 'break')
         label = None
-        if self.LTAhead() or self.match(TOK.PUNCTUATOR, ';') or self.match(TOK.EOF):
+        if self.LTAhead() or self.match(TOK.PUNCTUATOR, ';') or self.match(TOK.EOF) or self.match(TOK.PUNCTUATOR, '}'):
             return AST.BreakStatement(label)
         label = AST.Identifier(self.expect(TOK.ID)[1])
         self.expectSemicolon()
@@ -585,7 +585,7 @@ class Parser:
     def parseReturnStatement(self):
         self.expect(TOK.RESERVED, 'return')
         result = None
-        if self.LTAhead() or self.match(TOK.PUNCTUATOR, ';') or self.match(TOK.EOF):
+        if self.LTAhead() or self.match(TOK.PUNCTUATOR, ';') or self.match(TOK.EOF) or self.match(TOK.PUNCTUATOR, '}'):
             return AST.ReturnStatement(result)
         result = self.parseExpression(False)
         self.expectSemicolon()
