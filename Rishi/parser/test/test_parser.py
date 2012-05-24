@@ -45,7 +45,7 @@ class ParserTestCase(unittest.TestCase):
 
         node = parser.ASTRoot.statements[0]
 
-        self.assertEqual(len(node.statements),1)
+        self.assertEqual(len(node.body.statements),1)
 
     def test05ParseProgramAsBlockStatements(self):
         parser = Parser()
@@ -72,7 +72,7 @@ class ParserTestCase(unittest.TestCase):
 
         parser.buildAST()
         node = parser.ASTRoot.statements[0]
-        self.assertEqual(type(node.statements[0]), AST.Block)
+        self.assertEqual(type(node.body.statements[0]), AST.Block)
 
     def test07ParseVariableStatement(self):
         parser = Parser()

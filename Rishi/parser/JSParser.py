@@ -122,7 +122,7 @@ class Parser:
         statements = self.parseSourceElements()
         self.expect(TOK.PUNCTUATOR, '}')
 
-        return AST.FunctionDeclaration(name, arguments, statements)
+        return AST.FunctionDeclaration(name, arguments, AST.FunctionBody(statements))
 
     def parseSourceElement(self):
         if self.matchList(FIRST.FunctionDeclaration):
@@ -696,7 +696,7 @@ class Parser:
         statements = self.parseSourceElements()
         self.expect(TOK.PUNCTUATOR, '}')
 
-        return AST.FunctionExpression(name, arguments, statements)
+        return AST.FunctionExpression(name, arguments, AST.FunctionBody(statements))
 
 
 
