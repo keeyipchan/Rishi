@@ -366,3 +366,16 @@ class ExpressionStatement(Node):
         self.expr = expr
         self.expr.parent = self
 
+
+#returns a array of ordered references applicable for left-side
+# a.b.c -> [a,b,c]   a -> [a]
+def toLeftSideRefs(node):
+    refs = []
+    while isinstance(node, Property):
+        refs.insert(0,node.property.name)
+        node = node.object
+    if isinstance(node, Identifier):
+        refs.insert(0, node.name)
+#    else:
+#        return None
+    return refs

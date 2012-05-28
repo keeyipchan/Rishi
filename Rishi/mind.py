@@ -1,4 +1,6 @@
 import os
+from Rishi.corpuses.classFinder import ClassFinder
+from Rishi.corpuses.scopeTracer import ScopeTracer
 from Rishi.walker import Walker
 
 __author__ = 'Robur'
@@ -25,7 +27,14 @@ class Mind() :
     def __init__(self):
         self.sources = ''
         self.sourceList = []
-        self.findCorpuses = []
+        self.walker = Walker()
+        self.objects = []
+
+        classFinder = ClassFinder(self.objects)
+
+        scopeTracer = ScopeTracer()
+#        self.walker.addWatcher(scopeTracer)
+        self.walker.addWatcher(classFinder)
 
     def setSources(self, sources):
         self.sources = sources + '/'
@@ -34,6 +43,7 @@ class Mind() :
             name = file.split('.')
             if name[len(name)-1] == 'js':
                 self.sourceList.append(SourceFile(file))
+
     def getSourcesList(self):
         return jsonEncoder.encode(self.sourceList)
 
@@ -45,13 +55,13 @@ class Mind() :
         filename = self.sources + file.path
         parsed = filename + '.ast'
         AST = None
-#        if not os.path.exists(parsed):
-        from Rishi.parser.JSParser import Parser
-        parser = Parser()
-        parser.src = open(filename).read()
-        parser.buildAST()
-        import pickle
-        pickle.dump(parser.ASTRoot, open(parsed,'wb'), pickle.HIGHEST_PROTOCOL)
+        if not os.path.exists(parsed):
+            from Rishi.parser.JSParser import Parser
+            parser = Parser()
+            parser.src = open(filename).read()
+            parser.buildAST()
+            import pickle
+            pickle.dump(parser.ASTRoot, open(parsed,'wb'), pickle.HIGHEST_PROTOCOL)
 
 
     def loadAST(self):
@@ -67,16 +77,14 @@ class Mind() :
             ast = pickle.load(open(parsed,'rb'))
         file.setAST(ast)
 
-    def addFindCorpus(self, classFinder):
-        self.findCorpuses.append(classFinder)
-
     def findHidden(self):
-        walker = Walker()
-        walker.watchers = self.findCorpuses
         for file in self.sourceList:
             if file.parsed and file.ast:
-                walker.setAst(file.ast)
-                walker.walk()
+                print (file.path)
+                self.walker.setAst(file.ast)
+                self.walker.walk()
+
+        print(self.objects)
 
 
 

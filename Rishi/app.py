@@ -1,8 +1,6 @@
 import bottle
 import configparser
-from Rishi.corpuses.classFinder import ClassFinder
 from Rishi.mind import Mind
-from Rishi.corpuses.scopeTracer import ScopeTracer
 
 
 __author__ = 'Robur'
@@ -31,8 +29,4 @@ class App():
 
 
     def devRun(self):
-        classFinder = ClassFinder()
-        scopeTracer = ScopeTracer()
-        self.mind.addFindCorpus(scopeTracer)
-        self.mind.addFindCorpus(classFinder)
         self.mind.findHidden()

@@ -3,7 +3,7 @@ __author__ = 'Robur'
 #base class for all walkers
 class WalkerCorpus:
     #will be called at the start of walk
-    def prepareToWalk(self,state):
+    def prepareToWalk(self,state, root):
         pass
 
     #will be called at the beginning of looking of new node
