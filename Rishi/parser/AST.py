@@ -1,3 +1,4 @@
+
 __author__ = 'Robur'
 
 
@@ -372,10 +373,17 @@ class ExpressionStatement(Node):
 def toLeftSideRefs(node):
     refs = []
     while isinstance(node, Property):
-        refs.insert(0,node.property.name)
+        if isinstance(node.property, Identifier):
+            refs.insert(0,node.property.name)
+        elif isinstance(node.property, Literal):
+            refs.insert(0,node.property.value)
+        else:
+            refs.insert(0,str(type(node.property))) #todo: handle other types or skip maybe?
         node = node.object
     if isinstance(node, Identifier):
         refs.insert(0, node.name)
+    if isinstance(node, This):
+        refs.insert(0, 'this')
 #    else:
 #        return None
     return refs
