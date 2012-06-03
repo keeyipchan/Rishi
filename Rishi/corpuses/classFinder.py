@@ -13,12 +13,18 @@ class Object:
 
 
     def ensureObject(self, uri):
+        """
+        uri in string or list form
+        """
+        if isinstance(uri, str):
+            uri = uri.split('.')
         if not len(uri):
             raise ValueError('check of empty property')
         if not uri[0] in self.fields:
             self.fields[uri[0]] = Object(uri[0], self)
         if len(uri) > 1:
             self.fields[uri[0]].ensureObject(uri[1:])
+        return self.fields[uri[0]]
 
     def getObject(self, uri):
         if not len(uri):
@@ -28,10 +34,23 @@ class Object:
             else: return self.fields[uri[0]].getObject(uri[1:])
         return None
 
-    def setClassType(self):
+    def _setType(self, type):
         if self.type != None:
             raise ValueError('Trying to set a type of non-generic object: current %s, new %s' % (self.type, type))
-        self.type = 'class'
+        self.type = type
+
+
+    def setClassType(self):
+        self._setType('class')
+
+    def setMethodType(self):
+        self._setType('method')
+
+    def isClass(self):
+        return self.type == 'class'
+
+    def isMethod(self):
+        return self.type == 'method'
 
 #class ClassObject(Object):
 #    def __init__(self, name):
@@ -68,8 +87,8 @@ class ClassFinder(WalkerCorpus):
             if not len(refs): return
             if 'prototype' in refs:
                 self.ensureClass(refs[:refs.index('prototype')])
-                #                if refs.index('prototype') < len(refs) - 1:
-                #                    self.createMethod(refs[:refs.index('prototype')], refs[refs.index('prototype') + 1])
+                if refs.index('prototype') < len(refs) - 1:
+                    self.ensureMethod(refs[:refs.index('prototype')], refs[refs.index('prototype') + 1])
 
     #    def enterNode(self, node, state):
 
@@ -88,11 +107,20 @@ class ClassFinder(WalkerCorpus):
 
     def getClass(self, uri):
         """
-            uri in string form
+            uri in string or list form
         """
+        if isinstance(uri, list):
+            uri = '.'.join(uri)
         if uri in self.classes:
             return self.classes[uri]
         return None
+
+    def ensureMethod(self, objUri, name):
+        obj = self.getClass(objUri)
+        method = obj.ensureObject(name)
+        method.setMethodType()
+
+
 
 #        #check for a.b.prototype.d = function () {..} - create objects in chain and method
 #        if isinstance(node, AST.AssignmentExpression) and node.op == '=' and isinstance(node.right, AST.FunctionExpression):

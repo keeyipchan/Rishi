@@ -22,21 +22,26 @@ class test_ClassFinder(unittest.TestCase):
 
     def test01PrototypeBasedObjectExtractor(self):
         self.walk('''
-        a.prototype.d = function () {}
+        a.b.prototype.d = function () {}
+        c.prototype.d = function () {}
         b.c = function() {}
         ''')
 
-        self.assertEqual(len(self.classFinder.classes),1)
-        self.assertEqual(self.classFinder.getClass('a').name,'a')
+        self.assertEqual(len(self.classFinder.classes),2)
+        self.assertEqual(self.classFinder.getClass('c').name,'c')
+        self.assertTrue(self.classFinder.getClass('c').isClass())
+        self.assertEqual(self.classFinder.getClass('c').parent.name,'<global>')
+        self.assertEqual(self.classFinder.getClass('a.b').parent.name,'a')
 
-    def test02PrototypeBasedObjectExtractor(self):
+    def test02PrototypeBasedMethodExtractor(self):
         self.walk('''
-        a.prototype.d = function () {}
-        b.c = function() {}
+        a.b.prototype.d = function () {}
         ''')
 
-        self.assertEqual(len(self.classFinder.classes),1)
-        self.assertEqual(self.classFinder.getClass('a').name,'a')
+        method = self.classFinder.getClass('a.b').getObject('d')
+        self.assertNotEqual(method,None)
+        self.assertTrue(method.isMethod())
+
 
 
 
