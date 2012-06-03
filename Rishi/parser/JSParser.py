@@ -72,6 +72,9 @@ class Parser:
             return tok
         return self.lexer.getToken(REMode)
 
+    def setSrc(self, src):
+        self.src = src
+        self.reset()
 
     def reset(self):
         self.lexer.setSrc(self.src)
