@@ -4,7 +4,7 @@ from Rishi.parser import AST
 __author__ = 'Robur'
 
 class Object:
-    def __init__(self, name, parent = None):
+    def __init__(self, name, parent=None):
         self.name = name
         self.fields = {}
         self.node = None
@@ -23,7 +23,7 @@ class Object:
         if not uri[0] in self.fields:
             self.fields[uri[0]] = Object(uri[0], self)
         if len(uri) > 1:
-            self.fields[uri[0]].ensureObject(uri[1:])
+            return self.fields[uri[0]].ensureObject(uri[1:])
         return self.fields[uri[0]]
 
     def getObject(self, uri):
@@ -46,11 +46,17 @@ class Object:
     def setMethodType(self):
         self._setType('method')
 
+    def setPropertyType(self):
+        self._setType('property')
+
     def isClass(self):
         return self.type == 'class'
 
     def isMethod(self):
         return self.type == 'method'
+
+    def isProperty(self):
+        return self.type == 'property'
 
 #class ClassObject(Object):
 #    def __init__(self, name):
@@ -73,9 +79,10 @@ class Object:
 
 
 class ClassFinder(WalkerCorpus):
-    def __init__(self):
-        self.globalObj = Object('<global>')
-        self.classes = {}
+    def __init__(self, glob=Object('<global>'), classes=None):
+        if not classes: classes = {}
+        self.globalObj = glob
+        self.classes = classes
 
     def prepareToWalk(self, state, root):
         pass
@@ -85,10 +92,17 @@ class ClassFinder(WalkerCorpus):
         if isinstance(node, AST.AssignmentExpression) and node.op == '=' and isinstance(node.right, AST.FunctionExpression):
             refs = AST.toLeftSideRefs(node.left)
             if not len(refs): return
+            #totally skip 'this.x.x' references (will be handled in different way(
+            if refs[0] == 'this': return
             if 'prototype' in refs:
                 self.ensureClass(refs[:refs.index('prototype')])
                 if refs.index('prototype') < len(refs) - 1:
-                    self.ensureMethod(refs[:refs.index('prototype')], refs[refs.index('prototype') + 1])
+                    method = self.ensureMethod(refs[:refs.index('prototype')], refs[refs.index('prototype') + 1])
+                    method.node = node.right
+            else:
+                #no 'prototype' in property chain - create just an object
+                obj = self.globalObj.ensureObject(refs)
+                obj.node = node.right
 
     #    def enterNode(self, node, state):
 
@@ -102,7 +116,7 @@ class ClassFinder(WalkerCorpus):
         strUri = '.'.join(uri)
         if not strUri in self.classes:
             self.classes[strUri] = obj
-
+        return obj
 
 
     def getClass(self, uri):
@@ -119,7 +133,19 @@ class ClassFinder(WalkerCorpus):
         obj = self.getClass(objUri)
         method = obj.ensureObject(name)
         method.setMethodType()
+        return method
 
+
+    def analyzeClassNodes(self):
+        for cl in self.classes:
+            clazz = self.classes[cl]
+            if not clazz.node: continue
+            props = AST.extractNodes(clazz.node, AST.Property, goDeeper=False)
+            for node in props:
+                refs = AST.toLeftSideRefs(node)
+                if len(refs)>1 and refs[0] == 'this':
+                    prop = clazz.ensureObject(refs[1])
+                    prop.setPropertyType()
 
 
 #        #check for a.b.prototype.d = function () {..} - create objects in chain and method

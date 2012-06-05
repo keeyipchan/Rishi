@@ -387,3 +387,27 @@ def toLeftSideRefs(node):
 #    else:
 #        return None
     return refs
+
+def extractNodes(node,seekType, goDeeper = True):
+    """
+    extract a list of nodes with given type which is subnodes for specified node
+    goDeeper : if true - fetch subnodes on founded node, if false - don't
+    """
+    extractedNodes = []
+    lookupNodes = [node]
+    while len(lookupNodes):
+        node = lookupNodes.pop(0)
+        if type(node) == seekType:
+            extractedNodes.append(node)
+            if not goDeeper: continue
+        props = node.__dict__
+        for prop in props:
+            if prop == 'parent': continue
+            if isinstance(props[prop], Node):
+                lookupNodes.append(props[prop])
+            elif isinstance(props[prop], list):
+                for item in props[prop]:
+                    if isinstance(item, Node):
+                        lookupNodes.append(item)
+    return extractedNodes
+
