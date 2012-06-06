@@ -58,10 +58,31 @@ class test_ClassFinder(unittest.TestCase):
 
     def test04FindPropertiesInConstructor(self):
         self.walk('''
-        b=function (add) {this.x=1}
+        b=function (add) {this.x=this.y.g}
         b.prototype.c = function () {}
         ''')
 
         self.classFinder.analyzeClassNodes()
         clazz = self.classFinder.getClass('b')
         self.assertTrue(clazz.getObject('x').isProperty())
+        self.assertTrue(clazz.getObject('y').isProperty())
+        self.assertEqual(len(clazz.fields),3)
+
+    def test05FindPropertiesInConstructor(self):
+        self.walk('''
+        b=function (add) {}
+        b.prototype.c = function () {
+            this.y.d=this.x
+        }
+        ''')
+
+        self.classFinder.analyzeClassNodes()
+        clazz = self.classFinder.getClass('b')
+        self.assertTrue(clazz.getObject('x').isProperty())
+        self.assertTrue(clazz.getObject('y').isProperty())
+        self.assertEqual(len(clazz.fields),3)
+
+
+
+
+

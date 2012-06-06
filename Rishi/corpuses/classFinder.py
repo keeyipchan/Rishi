@@ -58,6 +58,9 @@ class Object:
     def isProperty(self):
         return self.type == 'property'
 
+    def getMethods(self):
+        return filter(lambda field: field.isMethod(), self.fields.values())
+
 #class ClassObject(Object):
 #    def __init__(self, name):
 #        super().__init__(name)
@@ -139,14 +142,21 @@ class ClassFinder(WalkerCorpus):
     def analyzeClassNodes(self):
         for cl in self.classes:
             clazz = self.classes[cl]
-            if not clazz.node: continue
-            props = AST.extractNodes(clazz.node, AST.Property, goDeeper=False)
-            for node in props:
-                refs = AST.toLeftSideRefs(node)
-                if len(refs)>1 and refs[0] == 'this':
-                    prop = clazz.ensureObject(refs[1])
-                    prop.setPropertyType()
+            if clazz.node:
+                self.extractThisProperties(clazz.node, clazz)
 
+            for method in list(clazz.getMethods()):
+                self.extractThisProperties(method.node, clazz)
+
+
+
+    def extractThisProperties(self, node, clazz):
+        props = AST.extractNodes(node, AST.Property, goDeeper=False)
+        for node in props:
+            refs = AST.toLeftSideRefs(node)
+            if len(refs)>1 and refs[0] == 'this':
+                prop = clazz.ensureObject(refs[1])
+                prop.setPropertyType()
 
 #        #check for a.b.prototype.d = function () {..} - create objects in chain and method
 #        if isinstance(node, AST.AssignmentExpression) and node.op == '=' and isinstance(node.right, AST.FunctionExpression):
