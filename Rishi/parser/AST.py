@@ -5,6 +5,8 @@ __author__ = 'Robur'
 class Node:
     def __init__(self):
         self.parent = None
+        #link for semantic tree
+        self.obj = None
 
 
 class ProgramNode(Node):

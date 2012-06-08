@@ -56,19 +56,29 @@ class test_ClassFinder(unittest.TestCase):
         self.assertIsNotNone(clazz)
         self.assertEqual(clazz.node.arguments[0],'add')
 
-    def test04FindPropertiesInConstructor(self):
+    def test04TestMethodAndConstructorGlobalScope(self):
         self.walk('''
-        b=function (add) {this.x=this.y.g}
+        b=function (add) {}
         b.prototype.c = function () {}
         ''')
 
-        self.classFinder.analyzeClassNodes()
         clazz = self.classFinder.getClass('b')
-        self.assertTrue(clazz.getObject('x').isProperty())
-        self.assertTrue(clazz.getObject('y').isProperty())
-        self.assertEqual(len(clazz.fields),3)
+        self.assertEqual(clazz.outerScope, self.classFinder.globalObj)
+        self.assertEqual(clazz.getObject('c').outerScope, self.classFinder.globalObj)
+
 
     def test05FindPropertiesInConstructor(self):
+        self.walk('''
+        b=function (add) {this.x=this.y.g}
+        ''')
+
+        clazz = self.classFinder.getClass('b')
+        self.assertIsNotNone(clazz)
+        self.assertTrue(clazz.getObject('x').isProperty())
+        self.assertTrue(clazz.getObject('y').isProperty())
+        self.assertEqual(len(clazz.fields),2)
+
+    def test06FindPropertiesInMethod(self):
         self.walk('''
         b=function (add) {}
         b.prototype.c = function () {
@@ -76,12 +86,25 @@ class test_ClassFinder(unittest.TestCase):
         }
         ''')
 
-        self.classFinder.analyzeClassNodes()
         clazz = self.classFinder.getClass('b')
         self.assertTrue(clazz.getObject('x').isProperty())
         self.assertTrue(clazz.getObject('y').isProperty())
         self.assertEqual(len(clazz.fields),3)
 
+    def test06CreatePropertyConstructorLink(self):
+        self.walk('''
+        a.b=function () { this.x =1}
+        b=function () { this.y =1}
+        a.c = function () {
+            this.y = new a.b();
+            this.u = new b()
+            this.u = new a.b()
+        }
+        ''')
+
+        self.assertEqual(len(self.classFinder.classes),3)
+        clazz = self.classFinder.getClass('a.c')
+        self.assertEqual(len(clazz.links),2)
 
 
 
