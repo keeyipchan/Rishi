@@ -1,125 +1,15 @@
+import Object
 from Rishi.corpuses.walkerCorpus import WalkerCorpus
 from Rishi.parser import AST
 
 __author__ = 'Robur'
-
-class Object:
-    def __init__(self, name, parent=None):
-        self.name = name
-        self.fields = {}
-        self.node = None
-        self.type = None
-        self.parent = parent
-        #every link is a tuple (type, obj)
-        self.links = []
-
-    def getURI(self):
-        uri = []
-        obj = self
-        while obj.parent:
-            uri.insert(0,obj.name)
-            obj = obj.parent
-        return '.'.join(uri)
-
-    def setLink(self, type, obj):
-        if self.isGlobal(): return
-        if not len(list(filter(lambda link: link['type'] == type and link['obj'] == obj,self.links))):
-            self.links.append({'type':type,'obj':obj})
-            if self.isMethod() or self.isProperty():
-                self.parent.setLink(type,obj)
-
-    def setNode(self, node):
-        self.node = node
-        if node.obj != None:
-            raise Exception('node already has a associated object!')
-        node.obj = self
-
-    def ensureObject(self, uri):
-        """
-        uri in string or list form
-        """
-        if isinstance(uri, str):
-            uri = uri.split('.')
-        if not len(uri):
-            raise ValueError('check of empty property')
-        if not uri[0] in self.fields:
-            self.fields[uri[0]] = Object(uri[0], self)
-        if len(uri) > 1:
-            return self.fields[uri[0]].ensureObject(uri[1:])
-        return self.fields[uri[0]]
-
-    def getObject(self, uri):
-        if not len(uri):
-            raise ValueError('check of empty property')
-        if uri[0] in self.fields:
-            if len(uri) == 1: return self.fields[uri[0]]
-            else: return self.fields[uri[0]].getObject(uri[1:])
-        return None
-
-    def _setType(self, type):
-        if self.type != None and type != self.type:
-            raise ValueError('Trying to set a type of non-generic object: current %s, new %s' % (self.type, type))
-        self.type = type
-
-
-    def setClassType(self):
-        self._setType('class')
-
-    def isClass(self):
-        return self.type == 'class'
-
-    def setGlobalType(self):
-        self._setType('global')
-
-    def isGlobal(self):
-        return self.type == 'global'
-
-    def setMethodType(self):
-        self._setType('method')
-
-    def isMethod(self):
-        return self.type == 'method'
-
-    def setPropertyType(self):
-        self._setType('property')
-
-    def isProperty(self):
-        return self.type == 'property'
-
-
-    def getMethods(self):
-        return filter(lambda field: field.isMethod(), self.fields.values())
-
-#class ClassObject(Object):
-#    def __init__(self, name):
-#        super().__init__(name)
-#        self.methods = []
-#        self.props = []
-#
-#    def addMethod(self, name):
-#        self.methods.append(FunctionObject(name))
-#
-#    def addProperty(self, name):
-#        if self.hasProperty(name): return
-#        self.props.append(PropertyObject(name))
-#        print(self.name+'.'+name)
-#
-#    def hasProperty(self, name):
-#        for prop in self.props:
-#            if prop.name == name: return True
-#        return False
-
-#class Scope:
-#    def __init__(self, outer=None, obj=None):
-#        self.outer = outer
-#        self.obj = obj
 
 
 class ClassFinder(WalkerCorpus):
     def __init__(self, glob=None, classes=None):
         if not classes: classes = {}
         if glob == None:
-            glob = Object('<global>')
+            glob = Object.Object('<global>')
             glob.setGlobalType()
         self.globalObj = glob
         self.classes = classes
@@ -145,25 +35,53 @@ class ClassFinder(WalkerCorpus):
                 obj = self.globalObj.ensureObject(refs)
                 obj.setNode(node.right)
 
+        if isinstance(node, AST.Call) and isinstance(node.expr, AST.Property):
+            #convert all this.z()... nodes to method
+            refs = AST.toLeftSideRefs(node.expr)
+            if refs[0] == 'this' and len(refs) == 2 and self.scope.node != None: #not a global scope (it possible, but must not happen)
+                obj = self.scope
+                if obj.isMethod():
+                    method = obj.parent.ensureObject(refs[1])
+                    method.setMethodType()
+                else:
+                    if not obj.isClass():
+                        obj.setClassType()
+                        self.addClass(obj)
+                    method = obj.ensureObject(refs[1])
+                    method.setMethodType()
+
+
         if isinstance(node, AST.Property):
+            #convert all this.z.x... nodes to property
             refs = AST.toLeftSideRefs(node)
             if refs[0] == 'this' and len(refs) > 1 and self.scope.node != None: #not a global scope (it possible, but must not happen)
                 obj = self.scope
                 if obj.isMethod():
                     prop = obj.parent.ensureObject(refs[1])
-                    prop.setPropertyType()
+                    if prop.isGeneric():
+                        prop.setPropertyType()
                 else:
                     if not obj.isClass():
                         obj.setClassType()
                         self.addClass(obj)
                     prop = obj.ensureObject(refs[1])
-                    prop.setPropertyType()
+                    if prop.isGeneric():
+                        prop.setPropertyType()
 
         if isinstance(node, AST.FunctionExpression) or isinstance(node, AST.FunctionDeclaration):
             #open new scope
             if node.obj != None:
+                #predefined linked object from previous parsing - used as a scope
                 node.obj.outerScope = self.scope
                 self.scope = node.obj
+            else:
+                #create new scope object
+                if node.name != None: name = node.name
+                else: name = '<anonymous>'
+                node.obj = Object.Object(name)
+                node.obj.outerScope = self.scope
+                self.scope = node.obj
+
 
         if isinstance(node, AST.New):
             #simple constructor handling

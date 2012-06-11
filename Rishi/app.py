@@ -16,6 +16,7 @@ class App():
 
         self.mind = Mind()
         self.mind.setSources(config['Rishi']['sources'])
+        self.mind.setOutputDir(config['Rishi']['output'])
         self.initRoutes()
         self.mind.loadAST()
 
@@ -30,3 +31,4 @@ class App():
 
     def devRun(self):
         self.mind.findHidden()
+        self.mind.saveObjects()

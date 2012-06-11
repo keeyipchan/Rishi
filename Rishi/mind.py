@@ -1,4 +1,5 @@
 import os
+from Object import Object
 from Rishi.corpuses.classFinder import ClassFinder
 from Rishi.corpuses.scopeTracer import ScopeTracer
 from Rishi.walker import Walker
@@ -28,9 +29,11 @@ class Mind() :
         self.sources = ''
         self.sourceList = []
         self.walker = Walker()
-        self.objects = []
+        self.classes = []
+        self.glob = Object('<global>')
+        self.glob.setGlobalType()
 
-        classFinder = ClassFinder(self.objects)
+        classFinder = ClassFinder(self.glob, self.classes)
 
         scopeTracer = ScopeTracer()
 #        self.walker.addWatcher(scopeTracer)
@@ -55,7 +58,7 @@ class Mind() :
         filename = self.sources + file.path
         parsed = filename + '.ast'
         AST = None
-        if not os.path.exists(parsed):
+        if not os.path.exists(parsed) or os.path.getmtime(parsed) < os.path.getmtime(filename):
             from Rishi.parser.JSParser import Parser
             parser = Parser()
             parser.src = open(filename).read()
@@ -84,8 +87,12 @@ class Mind() :
                 self.walker.setAst(file.ast)
                 self.walker.walk()
 
-        print(self.objects)
+        self.saveObjects()
 
+    def saveObjects(self):
+        file = open(self.outputDir + '/classes.json','w')
+        file.write(jsonEncoder.encode(self.classes))
 
-
+    def setOutputDir(self, outputDir):
+        self.outputDir = outputDir
 
