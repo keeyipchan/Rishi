@@ -86,8 +86,9 @@ class ClassFinder(WalkerCorpus):
         if isinstance(node, AST.New):
             #simple constructor handling
             refs = AST.toLeftSideRefs(node.expr)
-            obj = self.scope
-            obj.setLink('create', self.globalObj.getObject(refs))
+            if len(refs):
+                obj = self.scope
+                obj.setLink('create', self.globalObj.ensureObject(refs))
 
 
     def exitNode(self,node,state):

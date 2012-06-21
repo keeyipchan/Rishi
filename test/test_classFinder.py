@@ -92,7 +92,9 @@ class test_ClassFinder(unittest.TestCase):
 
     def test07CreatePropertyConstructorLink(self):
         self.walk('''
-        a.b=function () { this.x =1}
+        a.b=function () {
+            this.x = new e()
+        }
         b=function () { this.y =1}
         a.c = function () {
             this.y = new a.b();

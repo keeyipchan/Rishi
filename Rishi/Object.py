@@ -16,6 +16,9 @@ class Object:
         #every link is a tuple (type, obj)
         self.links = []
 
+    def forJSON(self):
+        return {name:self.name}
+
     def getURI(self):
         uri = []
         obj = self

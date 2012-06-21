@@ -7,7 +7,7 @@ import json
 
 class JsonEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, Serializable):
-            return obj.toDict()
+        if hasattr(obj, 'forJSON'):
+            return obj.forJSON()
         else:
             return json.JSONEncoder.default(self,obj)
