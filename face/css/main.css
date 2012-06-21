@@ -1,4 +1,8 @@
 #viewport {
     background: black;
-    border: 3px solid #555;
+}
+
+body {
+    padding: 0;
+    margin:0;
 }

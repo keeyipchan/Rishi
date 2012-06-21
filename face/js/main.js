@@ -1,9 +1,9 @@
 'use strict';
 
-define(['renderer', 'objectModel', 'objectCollection', 'app'], function (Renderer, ObjectModel, ObjectCollection, App){
-    var renderer = new Renderer($('#viewport'));
+define(['sceneManager', 'objectModel', 'objectCollection', 'app'], function (SceneManager, ObjectModel, ObjectCollection, App){
+    var sceneManager = new SceneManager($('#viewport'));
     var app = new App({
-        scene: renderer.scene
+        sceneManager: sceneManager
     });
 
     Backbone.sync = function (method, model, options) {
@@ -12,5 +12,5 @@ define(['renderer', 'objectModel', 'objectCollection', 'app'], function (Rendere
 
     app.objects.add(new ObjectModel());
 
-    renderer.render();
+//    sceneManager.render();
 });
