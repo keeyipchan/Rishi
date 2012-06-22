@@ -12,9 +12,9 @@ define(['utils'], function (Utils) {
             }));
 
         this.base = new THREE.Mesh(new THREE.CubeGeometry(95, 95, 3),
-            new THREE.MeshBasicMaterial({
-                color:0xcccccc,
-                map:this.texture
+            new THREE.MeshLambertMaterial({
+                color:0xcccccc
+
             }));
         this.base.position.z = 3 / 2;
         this.frame.add(this.base);

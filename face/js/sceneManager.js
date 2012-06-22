@@ -11,7 +11,7 @@ define(['mouseManager'], function (MouseManager) {
         this.scene.add(this.cameraPivot);
 
         this.blocks = [];
-//        this.ambLight = new THREE.AmbientLight( 0x101010 );
+//        this.ambLight = new THREE.AmbientLight( 0x555555 );
 //        this.scene.add( this.ambLight );
 
         this.mainLight = new THREE.DirectionalLight( 0xffffff );
@@ -33,6 +33,7 @@ define(['mouseManager'], function (MouseManager) {
 
         this.mouseManager = new MouseManager(this.$canvas);
         this.mouseManager.on('drag', this.mouseDrag.bind(this));
+        this.mouseManager.on('zoom', this.mouseZoom.bind(this));
 
         this.renderer.setClearColorHex(0xEEEEEE, 1.0);
         this.renderer.clear();
@@ -48,6 +49,14 @@ define(['mouseManager'], function (MouseManager) {
             if (button == 2) {
                 this.rotateCameraOverWorldCenter(dx,dy)
             }
+        },
+
+        mouseZoom: function (delta) {
+            this.zoom(delta*50);
+        },
+
+        zoom:function (delta) {
+            this.camera.position.z -= delta;
         },
 
         rotateCameraOverWorldCenter : function (dx,dy) {
