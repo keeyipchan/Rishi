@@ -20,7 +20,7 @@ define(function () {
         },
         _mouseMove : function (e) {
             if (!this.dragging) return;
-            this.trigger('drag', e.pageX - this.pageX, e.pageY - this.pageY);
+            this.trigger('drag', e.pageX - this.pageX, e.pageY - this.pageY, e.which);
             this.pageX = e.pageX;
             this.pageY = e.pageY;
         },
