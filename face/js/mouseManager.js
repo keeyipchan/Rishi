@@ -9,9 +9,9 @@ define(function () {
 
     MouseManager.prototype = {
         _bindEvents : function () {
-            this.node.on('mousedown', this._mouseDown.bind(this))
-            this.node.on('mousemove', this._mouseMove.bind(this))
-            this.node.on('mouseup', this._mouseUp.bind(this))
+            this.node.on('mousedown', this._mouseDown.bind(this));
+            this.node.on('mousemove', this._mouseMove.bind(this));
+            this.node.on('mouseup', this._mouseUp.bind(this));
         },
         _mouseDown : function (e) {
             this.dragging = true;
