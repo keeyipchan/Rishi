@@ -16,8 +16,12 @@ class Object:
         #every link is a tuple (type, obj)
         self.links = []
 
-    def forJSON(self):
-        return {name:self.name}
+    def toFlatObj(self):
+        res = {'name':self.name, 'type':self.type}
+        res['fields'] = {}
+        for f in self.fields:
+            res['fields'][f] = self.fields[f].toFlatObj()
+        return res
 
     def getURI(self):
         uri = []
@@ -49,6 +53,9 @@ class Object:
         if not len(uri):
             raise ValueError('check of empty property')
         if not uri[0] in self.fields:
+            objUri = self.getURI()
+            if objUri == '': objUri = '<global>'
+            print('new object:'+uri[0]+' in '+ objUri)
             self.fields[uri[0]] = Object(uri[0], self)
         if len(uri) > 1:
             return self.fields[uri[0]].ensureObject(uri[1:])

@@ -1,4 +1,4 @@
-define(['mouseManager'], function (MouseManager) {
+define(['./mouseManager'], function (MouseManager) {
     'use strict';
 
     var SceneManager = function ($canvas) {

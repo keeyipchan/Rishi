@@ -7,7 +7,7 @@ __author__ = 'Robur'
 
 class ClassFinder(WalkerCorpus):
     def __init__(self, glob=None, classes=None):
-        if not classes: classes = {}
+        if classes == None: classes = {}
         if glob == None:
             glob = Object.Object('<global>')
             glob.setGlobalType()

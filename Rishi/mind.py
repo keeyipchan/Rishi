@@ -21,15 +21,15 @@ class SourceFile(Serializable):
         self.ast = ASTRoot
         self.parsed = True
 
-from Rishi.jsonEncoder import JsonEncoder
-jsonEncoder = JsonEncoder()
+from Rishi.jsonSerializer import JsonSerializer
+jsonSerializer = JsonSerializer()
 
 class Mind() :
     def __init__(self):
         self.sources = ''
         self.sourceList = []
         self.walker = Walker()
-        self.classes = []
+        self.classes = {}
         self.glob = Object('<global>')
         self.glob.setGlobalType()
 
@@ -90,8 +90,11 @@ class Mind() :
         self.saveObjects()
 
     def saveObjects(self):
+        file = open(self.outputDir + '/ObjectTree.json','w')
+        file.write(jsonSerializer.serialize(self.glob))
+
         file = open(self.outputDir + '/classes.json','w')
-        file.write(jsonEncoder.encode(self.classes))
+        file.write(jsonSerializer.serialize(list(self.classes.keys())))
 
     def setOutputDir(self, outputDir):
         self.outputDir = outputDir
