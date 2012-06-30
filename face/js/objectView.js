@@ -5,6 +5,7 @@ define(['utils'], function (Utils) {
         this.manager = options.manager;
         this.model = options.model;
 
+
         this.frame = new THREE.Mesh(new THREE.CubeGeometry(100, 100, 1),
             new THREE.MeshLambertMaterial({
                 color:0xffaa88

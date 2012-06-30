@@ -16,7 +16,8 @@ define(function () {
         loadObjectTree:function () {
             this.getJSON('ObjectTree.json').success(function (data) {
                 console.log(data);
-            }).error(function () {
+                this.trigger('objectTreeLoaded', data);
+            }.bind(this)).error(function () {
                     console.log('error loading object tree')
                 });
         }

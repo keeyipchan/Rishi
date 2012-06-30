@@ -52,7 +52,7 @@ define(['./mouseManager'], function (MouseManager) {
         },
 
         mouseZoom: function (delta) {
-            this.zoom(delta*50);
+            this.zoom(delta*100);
         },
 
         zoom:function (delta) {
@@ -66,8 +66,8 @@ define(['./mouseManager'], function (MouseManager) {
             this.cameraPivot.rotation.x = this.cameraPivot.rotation.x - dy/180;
         },
         moveCamera: function (rx,ry,rz) {
-            this.camera.position.x-=rx;
-            this.camera.position.y+=ry;
+            this.cameraPivot.position.x-=rx;
+            this.cameraPivot.position.y+=ry;
         },
 
         startRendering:function () {
@@ -76,13 +76,20 @@ define(['./mouseManager'], function (MouseManager) {
         },
 
         render:function () {
-            this.renderPending = false;
-            this.renderer.render(this.scene, this.camera);
-            if (this.continiousRender && !this.renderPending) {
+            if (!this.renderPending) {
                 this.renderPending = true;
-                webkitRequestAnimationFrame(this.render.bind(this));
+                webkitRequestAnimationFrame(this.doRender.bind(this));
             }
         },
+
+        doRender: function () {
+            this.renderPending = false;
+            this.renderer.render(this.scene, this.camera);
+            if (this.continiousRender) {
+                this.render();
+            }
+        },
+
         add:function (block) {
             this.blocks.push(block);
             block.addToScene(this.scene);
@@ -93,7 +100,8 @@ define(['./mouseManager'], function (MouseManager) {
 
         reArrangeBlocks:function () {
             for (var i = 0; i< this.blocks.length; i++) {
-//                this.blocks[i].geometry.position.set(i*120 + 50, 50, 0);
+                var columns = Math.ceil(Math.sqrt(this.blocks.length));
+                this.blocks[i].frame.position.set((i%columns)*120 + 50, Math.floor(i/columns)*120 + 50, 0);
             }
         }
     };
